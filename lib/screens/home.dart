@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'package:dart_flutter/models/models.dart' show PostModel;
-import 'package:dart_flutter/services/services.dart' show ApiService;
-import 'package:dart_flutter/widgets/widgets.dart' show PostList;
+import 'package:dart_flutter/models/models.dart';
+import 'package:dart_flutter/services/services.dart';
+import 'package:dart_flutter/widgets/widgets.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
