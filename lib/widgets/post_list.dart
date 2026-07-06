@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:dart_flutter/models/models.dart' show PostModel;
-import 'package:dart_flutter/widgets/widgets.dart' show PostTile;
+import 'package:dart_flutter/models/models.dart';
+import 'package:dart_flutter/widgets/widgets.dart';
 
 class PostList extends StatelessWidget {
   final List<PostModel> posts;
