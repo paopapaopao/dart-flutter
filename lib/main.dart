@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:dart_flutter/screens/home_screen.dart' show HomeScreen;
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.title});
 
@@ -17,12 +19,7 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[Text('Dart Flutter')],
-        ),
-      ),
+      body: Column(children: [HomeScreen()]),
     );
   }
 }
@@ -38,7 +35,7 @@ class App extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      routes: {'/': (_) => HomePage(title: 'Dart Flutter')},
+      routes: {'/': (_) => HomeScreen()},
       initialRoute: '/',
     );
   }
