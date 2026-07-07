@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:dart_flutter/routes.dart';
 import 'package:dart_flutter/models/models.dart';
 
 class PostTile extends StatelessWidget {
@@ -7,8 +8,19 @@ class PostTile extends StatelessWidget {
 
   const PostTile({super.key, required this.post});
 
+  VoidCallback _handleTap(BuildContext context) {
+    return () {
+      // TODO: Refactor
+      Navigator.pushNamed(context, AppRoutes.postDetails, arguments: post.id);
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ListTile(title: Text(post.title), subtitle: Text(post.body));
+    return ListTile(
+      onTap: _handleTap(context),
+      title: Text(post.title),
+      subtitle: Text(post.body),
+    );
   }
 }
