@@ -5,6 +5,22 @@ import 'package:http/http.dart' as http;
 import 'package:dart_flutter/models/models.dart';
 
 class ApiService {
+  Future<PostModel> readPost(int id) async {
+    final response = await http.get(
+      Uri.parse(
+        'https://dummyjson.com/posts/$id?limit=32&select=id,title,body',
+      ),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to load post');
+    }
+
+    final data = jsonDecode(response.body);
+
+    return PostModel.fromJson(data);
+  }
+
   Future<List<PostModel>> readPosts() async {
     final response = await http.get(
       Uri.parse('https://dummyjson.com/posts?limit=20&select=id,title,body'),
