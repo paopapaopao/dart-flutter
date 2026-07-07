@@ -20,7 +20,7 @@ class App extends StatelessWidget {
           case '/post-details':
             final id = settings.arguments as int;
 
-            return MaterialPageRoute(builder: (_) => PostDetailsScreen(id: id));
+            return MaterialPageRoute(builder: (_) => PostScreen(id: id));
           default:
             return MaterialPageRoute(
               builder: (_) =>

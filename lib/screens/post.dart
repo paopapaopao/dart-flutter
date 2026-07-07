@@ -4,10 +4,10 @@ import 'package:dart_flutter/models/models.dart';
 import 'package:dart_flutter/services/services.dart';
 import 'package:dart_flutter/widgets/widgets.dart';
 
-class PostDetailsScreen extends StatelessWidget {
+class PostScreen extends StatelessWidget {
   final int id;
 
-  const PostDetailsScreen({super.key, required this.id});
+  const PostScreen({super.key, required this.id});
 
   @override
   Widget build(BuildContext context) {
