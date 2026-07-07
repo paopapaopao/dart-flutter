@@ -7,8 +7,18 @@ class PostTile extends StatelessWidget {
 
   const PostTile({super.key, required this.post});
 
+  VoidCallback _handleTap(BuildContext context) {
+    return () {
+      Navigator.pushNamed(context, '/post-details', arguments: post.id);
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ListTile(title: Text(post.title), subtitle: Text(post.body));
+    return ListTile(
+      onTap: _handleTap(context),
+      title: Text(post.title),
+      subtitle: Text(post.body),
+    );
   }
 }
