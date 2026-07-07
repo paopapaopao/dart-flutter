@@ -12,6 +12,7 @@ class AppRouter {
         final id = settings.arguments as int;
 
         return MaterialPageRoute(builder: (_) => PostScreen(id: id));
+      // TODO: Refactor
       default:
         return MaterialPageRoute(
           builder: (_) =>

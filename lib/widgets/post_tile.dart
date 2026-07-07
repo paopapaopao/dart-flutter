@@ -10,6 +10,7 @@ class PostTile extends StatelessWidget {
 
   VoidCallback _handleTap(BuildContext context) {
     return () {
+      // TODO: Refactor
       Navigator.pushNamed(context, AppRoutes.postDetails, arguments: post.id);
     };
   }

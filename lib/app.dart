@@ -8,6 +8,7 @@ class App extends StatelessWidget {
 
   @override
   Widget build(_) {
+    // TODO: Refactor
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Dart Flutter',
