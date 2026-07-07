@@ -4,11 +4,11 @@ import 'package:dart_flutter/routes.dart';
 import 'package:dart_flutter/screens/screens.dart';
 
 class AppRouter {
-  static Route<dynamic> onGenerateRoute(RouteSettings settings) {
+  static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
-      case Routes.home:
+      case AppRoutes.home:
         return MaterialPageRoute(builder: (_) => HomeScreen());
-      case Routes.postDetails:
+      case AppRoutes.postDetails:
         final id = settings.arguments as int;
 
         return MaterialPageRoute(builder: (_) => PostScreen(id: id));

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:dart_flutter/routes.dart';
 import 'package:dart_flutter/models/models.dart';
 
 class PostTile extends StatelessWidget {
@@ -9,7 +10,7 @@ class PostTile extends StatelessWidget {
 
   VoidCallback _handleTap(BuildContext context) {
     return () {
-      Navigator.pushNamed(context, '/post-details', arguments: post.id);
+      Navigator.pushNamed(context, AppRoutes.postDetails, arguments: post.id);
     };
   }
 
