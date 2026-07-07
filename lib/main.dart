@@ -13,7 +13,21 @@ class App extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      routes: {'/': (_) => HomeScreen()},
+      onGenerateRoute: (settings) {
+        switch (settings.name) {
+          case '/':
+            return MaterialPageRoute(builder: (_) => HomeScreen());
+          case '/post-details':
+            final id = settings.arguments as int;
+
+            return MaterialPageRoute(builder: (_) => PostDetailsScreen(id: id));
+          default:
+            return MaterialPageRoute(
+              builder: (_) =>
+                  const Scaffold(body: Center(child: Text('Page not found'))),
+            );
+        }
+      },
       initialRoute: '/',
     );
   }
