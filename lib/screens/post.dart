@@ -10,28 +10,37 @@ class PostScreen extends StatelessWidget {
   const PostScreen({super.key, required this.id});
 
   @override
-  Widget build(BuildContext context) {
-    final ApiService api = ApiService();
+  Widget build(_) {
+    final api = ApiService();
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.deepPurple,
         foregroundColor: Colors.white,
-        title: Text('Post Details'),
+        title: Text('Post $id'),
       ),
       body: FutureBuilder<PostModel>(
         future: api.readPost(id),
-        builder: (context, snapshot) {
+        builder: (_, AsyncSnapshot snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return Container(
+              alignment: Alignment.center,
+              child: CircularProgressIndicator(),
+            );
           }
 
           if (snapshot.hasError) {
-            return Center(child: Text(snapshot.error.toString()));
+            return Container(
+              alignment: Alignment.center,
+              child: Text(snapshot.error.toString()),
+            );
           }
 
           if (!snapshot.hasData) {
-            return const Center(child: Text('Post not found'));
+            return Container(
+              alignment: Alignment.center,
+              child: Text('Post not found'),
+            );
           }
 
           return PostTile(post: snapshot.data!);

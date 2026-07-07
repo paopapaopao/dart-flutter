@@ -8,8 +8,8 @@ class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final ApiService api = ApiService();
+  Widget build(_) {
+    final api = ApiService();
 
     return Scaffold(
       appBar: AppBar(
@@ -19,17 +19,26 @@ class HomeScreen extends StatelessWidget {
       ),
       body: FutureBuilder<List<PostModel>>(
         future: api.readPosts(),
-        builder: (context, snapshot) {
+        builder: (_, AsyncSnapshot snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return Container(
+              alignment: Alignment.center,
+              child: CircularProgressIndicator(),
+            );
           }
 
           if (snapshot.hasError) {
-            return Center(child: Text(snapshot.error.toString()));
+            return Container(
+              alignment: Alignment.center,
+              child: Text(snapshot.error.toString()),
+            );
           }
 
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No posts found'));
+          if (!snapshot.hasData || snapshot.data.isEmpty) {
+            return Container(
+              alignment: Alignment.center,
+              child: Text('Posts not found'),
+            );
           }
 
           return PostList(posts: snapshot.data!);
