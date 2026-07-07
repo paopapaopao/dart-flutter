@@ -7,7 +7,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:dart_flutter/main.dart';
+import 'package:dart_flutter/app.dart';
 
 void main() {
   testWidgets('should see the text "Dart Flutter"', (
