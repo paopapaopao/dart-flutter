@@ -21,9 +21,14 @@ class ApiService {
     return PostModel.fromJson(data);
   }
 
-  Future<List<PostModel>> readPosts() async {
+  Future<List<PostModel>> readPosts({
+    required int limit,
+    required int skip,
+  }) async {
     final response = await http.get(
-      Uri.parse('https://dummyjson.com/posts?limit=20&select=id,title,body'),
+      Uri.parse(
+        'https://dummyjson.com/posts?limit=$limit&skip=$skip&select=id,title,body',
+      ),
     );
 
     if (response.statusCode != 200) {
