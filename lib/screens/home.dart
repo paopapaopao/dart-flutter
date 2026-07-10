@@ -82,11 +82,16 @@ class _HomeScreenState extends State<HomeScreen> {
             return Center(child: Text('Posts not found'));
           }
 
-          return PostList(
-            posts: provider.posts,
-            controller: _scrollController,
-            isLoading: provider.isLoading,
-            hasMore: provider.hasMore,
+          return RefreshIndicator(
+            onRefresh: () async {
+              await context.read<PostProvider>().refresh();
+            },
+            child: PostList(
+              posts: provider.posts,
+              controller: _scrollController,
+              isLoading: provider.isLoading,
+              hasMore: provider.hasMore,
+            ),
           );
         },
       ),
