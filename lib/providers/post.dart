@@ -41,4 +41,12 @@ class PostProvider extends ChangeNotifier {
     _isLoading = false;
     notifyListeners();
   }
+
+  Future<void> refresh() async {
+    skip = 0;
+    _hasMore = true;
+    _posts.clear();
+
+    await loadMore();
+  }
 }
