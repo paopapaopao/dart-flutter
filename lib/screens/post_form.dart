@@ -2,12 +2,21 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 
-class PostFormScreen extends StatelessWidget {
+import 'package:dart_flutter/services/services.dart';
+
+class PostFormScreen extends StatefulWidget {
+  const PostFormScreen({super.key});
+
+  @override
+  State<PostFormScreen> createState() => _PostFormScreenState();
+}
+
+class _PostFormScreenState extends State<PostFormScreen> {
   final GlobalKey<FormState> _key = GlobalKey<FormState>();
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _bodyController = TextEditingController();
 
-  PostFormScreen({super.key});
+  final ApiService _api = ApiService();
 
   String? _validateTitle(String? value) =>
       value == null || value.isEmpty ? 'Title is required' : null;
@@ -18,7 +27,16 @@ class PostFormScreen extends StatelessWidget {
   Future<void> _handlePress() async {
     if (!_key.currentState!.validate()) return;
 
-    log('currentState: ${_key.currentState!.validate()}');
+    final data = {'title': _titleController.text, 'body': _bodyController.text};
+
+    await _api.createPost(data);
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _bodyController.dispose();
+    super.dispose();
   }
 
   @override

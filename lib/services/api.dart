@@ -42,4 +42,16 @@ class ApiService {
     }
     throw Exception('API error: ${data['message']}');
   }
+
+  Future<void> createPost(Map<String, String> payload) async {
+    final response = await http.post(
+      Uri.parse('$_baseUrl/posts'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(payload),
+    );
+
+    if (response.statusCode != 201 && response.statusCode != 200) {
+      throw Exception('Failed to create post: ${response.statusCode}');
+    }
+  }
 }
