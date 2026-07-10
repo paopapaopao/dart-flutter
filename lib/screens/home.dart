@@ -15,6 +15,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final ScrollController _scrollController = ScrollController();
 
   bool _isShown = false;
+  int _selectedIndex = 0;
 
   void _listener() {
     const threshold = 300.0;
@@ -71,6 +72,21 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.deepPurple,
         foregroundColor: Colors.white,
         title: Text('Home'),
+      ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _selectedIndex,
+        onDestinationSelected: (int index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+          if (index == 1) {
+            Navigator.of(context).pushNamed('/post-form');
+          }
+        },
+        destinations: [
+          NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
+          NavigationDestination(icon: Icon(Icons.add), label: 'Create Post'),
+        ],
       ),
       body: Consumer<PostProvider>(
         builder: (_, provider, __) {
