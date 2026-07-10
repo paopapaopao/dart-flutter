@@ -12,6 +12,8 @@ class AppRouter {
         final id = settings.arguments as int;
 
         return MaterialPageRoute(builder: (_) => PostScreen(id: id));
+      case AppRoutes.postForm:
+        return MaterialPageRoute(builder: (_) => PostFormScreen());
       // TODO: Refactor
       default:
         return MaterialPageRoute(
