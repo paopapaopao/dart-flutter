@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import 'package:dart_flutter/models/models.dart';
-import 'package:dart_flutter/services/services.dart';
+import 'package:dart_flutter/providers/providers.dart';
 import 'package:dart_flutter/widgets/widgets.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -12,15 +12,22 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final ApiService _api = ApiService();
   final ScrollController _scrollController = ScrollController();
-
-  late final Future<List<PostModel>> _postsFuture;
 
   bool _isShown = false;
 
   void _listener() {
     const threshold = 300.0;
+
+    final provider = context.read<PostProvider>();
+
+    // Infinite scroll
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - threshold) {
+      provider.loadMore();
+    }
+
+    // Scroll-to-top button
     final shouldShow = _scrollController.offset > threshold;
 
     if (shouldShow != _isShown) {
@@ -33,7 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _handlePress() {
     _scrollController.animateTo(
       0,
-      duration: Duration(milliseconds: 400),
+      duration: const Duration(milliseconds: 400),
       curve: Curves.easeOut,
     );
   }
@@ -42,8 +49,11 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
 
-    _postsFuture = _api.readPosts();
     _scrollController.addListener(_listener);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<PostProvider>().loadMore();
+    });
   }
 
   @override
@@ -55,37 +65,29 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
-  Widget build(_) {
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.deepPurple,
         foregroundColor: Colors.white,
         title: Text('Home'),
       ),
-      body: FutureBuilder<List<PostModel>>(
-        future: _postsFuture,
-        builder: (_, AsyncSnapshot<List<PostModel>> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Container(
-              alignment: Alignment.center,
-              child: CircularProgressIndicator(),
-            );
+      body: Consumer<PostProvider>(
+        builder: (_, provider, __) {
+          if (provider.posts.isEmpty && provider.isLoading) {
+            return Center(child: CircularProgressIndicator());
           }
 
-          if (snapshot.hasError) {
-            return Container(
-              alignment: Alignment.center,
-              child: Text(snapshot.error.toString()),
-            );
-          }
-
-          final posts = snapshot.data;
-
-          if (posts == null || posts.isEmpty) {
+          if (provider.posts.isEmpty) {
             return Center(child: Text('Posts not found'));
           }
 
-          return PostList(posts: posts, controller: _scrollController);
+          return PostList(
+            posts: provider.posts,
+            controller: _scrollController,
+            isLoading: provider.isLoading,
+            hasMore: provider.hasMore,
+          );
         },
       ),
       floatingActionButton: AnimatedSwitcher(
