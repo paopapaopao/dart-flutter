@@ -1,0 +1,65 @@
+import 'package:flutter/material.dart';
+
+import 'package:dart_flutter/services/services.dart';
+
+class PostForm extends StatefulWidget {
+  const PostForm({super.key});
+
+  @override
+  State<PostForm> createState() => _PostFormState();
+}
+
+class _PostFormState extends State<PostForm> {
+  final GlobalKey<FormState> _key = GlobalKey<FormState>();
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _bodyController = TextEditingController();
+
+  final ApiService _api = ApiService();
+
+  String? _validateTitle(String? value) =>
+      value == null || value.isEmpty ? 'Title is required' : null;
+
+  String? _validateBody(String? value) =>
+      value == null || value.isEmpty ? 'Body is required' : null;
+
+  Future<void> _handlePress() async {
+    if (!_key.currentState!.validate()) return;
+
+    final data = {'title': _titleController.text, 'body': _bodyController.text};
+
+    await _api.createPost(data);
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _bodyController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Form(
+      key: _key,
+      child: Flex(
+        direction: Axis.vertical,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          TextFormField(
+            controller: _titleController,
+            validator: _validateTitle,
+            decoration: InputDecoration(hintText: 'Enter title'),
+          ),
+          SizedBox(height: 32),
+          TextFormField(
+            controller: _bodyController,
+            validator: _validateBody,
+            decoration: InputDecoration(hintText: 'Enter body'),
+          ),
+          SizedBox(height: 64),
+          ElevatedButton(onPressed: _handlePress, child: Text('Create Post')),
+        ],
+      ),
+    );
+  }
+}
