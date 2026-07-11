@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:http/http.dart' as http;
 
@@ -61,8 +62,20 @@ class ApiService {
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(payload),
     );
+
     if (response.statusCode != 200 && response.statusCode != 201) {
       throw Exception('Failed to update post: ${response.statusCode}');
+    }
+  }
+
+  Future<void> deletePost(int id) async {
+    final response = await http.delete(Uri.parse('$_baseUrl/posts/$id'));
+
+    log('response statusCode: ${response.statusCode}');
+    log('response body: ${response.body}');
+
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw Exception('Failed to delete post: ${response.statusCode}');
     }
   }
 }
