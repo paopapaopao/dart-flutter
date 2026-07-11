@@ -56,14 +56,13 @@ class ApiService {
   }
 
   Future<void> updatePost(int id, Map<String, String> payload) async {
-    final response = await http.post(
+    final response = await http.put(
       Uri.parse('$_baseUrl/posts/$id'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(payload),
     );
-
-    if (response.statusCode != 201 && response.statusCode != 200) {
-      throw Exception('Failed to create post: ${response.statusCode}');
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw Exception('Failed to update post: ${response.statusCode}');
     }
   }
 }
