@@ -1,9 +1,18 @@
 import 'package:flutter/material.dart';
 
-import 'package:dart_flutter/services/services.dart';
+import 'package:dart_flutter/models/models.dart';
 
 class PostForm extends StatefulWidget {
-  const PostForm({super.key});
+  final PostModel? post;
+  final Future<void> Function(int, Map<String, String>) onPress;
+  final String text;
+
+  const PostForm({
+    super.key,
+    this.post,
+    required this.onPress,
+    this.text = 'Submit',
+  });
 
   @override
   State<PostForm> createState() => _PostFormState();
@@ -11,10 +20,8 @@ class PostForm extends StatefulWidget {
 
 class _PostFormState extends State<PostForm> {
   final GlobalKey<FormState> _key = GlobalKey<FormState>();
-  final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _bodyController = TextEditingController();
-
-  final ApiService _api = ApiService();
+  late final TextEditingController _titleController;
+  late final TextEditingController _bodyController;
 
   String? _validateTitle(String? value) =>
       value == null || value.isEmpty ? 'Title is required' : null;
@@ -27,13 +34,24 @@ class _PostFormState extends State<PostForm> {
 
     final data = {'title': _titleController.text, 'body': _bodyController.text};
 
-    await _api.createPost(data);
+    await widget.onPress(widget.post?.id ?? 0, data);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    final title = widget.post?.title ?? '';
+    final body = widget.post?.body ?? '';
+    _titleController = TextEditingController(text: title);
+    _bodyController = TextEditingController(text: body);
   }
 
   @override
   void dispose() {
     _titleController.dispose();
     _bodyController.dispose();
+
     super.dispose();
   }
 
@@ -57,7 +75,7 @@ class _PostFormState extends State<PostForm> {
             decoration: InputDecoration(hintText: 'Enter body'),
           ),
           SizedBox(height: 64),
-          ElevatedButton(onPressed: _handlePress, child: Text('Create Post')),
+          ElevatedButton(onPressed: _handlePress, child: Text(widget.text)),
         ],
       ),
     );
