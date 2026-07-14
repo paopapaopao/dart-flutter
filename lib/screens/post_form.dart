@@ -27,9 +27,19 @@ class _PostFormScreenState extends State<PostFormScreen> {
           post: null,
           onPress: ({int? id, required payload}) async {
             final messenger = ScaffoldMessenger.of(context);
+            final navigator = Navigator.of(context);
 
             try {
               await service.createPost(payload);
+
+              messenger.showSnackBar(
+                SnackBar(
+                  backgroundColor: Colors.green,
+                  content: Text('Post created'),
+                ),
+              );
+
+              navigator.pop();
             } catch (error) {
               if (!context.mounted) return;
 

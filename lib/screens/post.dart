@@ -72,6 +72,17 @@ class _PostScreenState extends State<PostScreen> {
 
                     try {
                       await _api.updatePost(id: id!, payload: payload);
+
+                      messenger.showSnackBar(
+                        SnackBar(
+                          backgroundColor: Colors.green,
+                          content: Text('Post updated'),
+                        ),
+                      );
+
+                      setState(() {
+                        _isView = true;
+                      });
                     } catch (error) {
                       if (!context.mounted) return;
 

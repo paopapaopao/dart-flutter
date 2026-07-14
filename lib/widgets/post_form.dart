@@ -4,10 +4,7 @@ import 'package:dart_flutter/models/models.dart';
 
 class PostForm extends StatefulWidget {
   final PostModel? post;
-  final Future<void> Function({
-    required int id,
-    required Map<String, String> payload,
-  })
+  final Future<void> Function({required Map<String, String> payload, int? id})
   onPress;
   final String text;
 

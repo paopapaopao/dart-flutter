@@ -47,6 +47,13 @@ class PostTile extends StatelessWidget {
 
         if (!context.mounted) return true;
 
+        messenger.showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.green,
+            content: Text('Post deleted'),
+          ),
+        );
+
         return true;
       } catch (error) {
         if (!context.mounted) return false;
