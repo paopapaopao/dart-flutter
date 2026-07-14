@@ -17,6 +17,8 @@ class PostTile extends StatelessWidget {
 
   ConfirmDismissCallback _handleConfirmDismiss(BuildContext context) {
     return (_) async {
+      final messenger = ScaffoldMessenger.of(context);
+
       final confirmed = await showDialog<bool>(
         context: context,
         builder: (_) => AlertDialog(
@@ -46,8 +48,15 @@ class PostTile extends StatelessWidget {
         if (!context.mounted) return true;
 
         return true;
-      } catch (exception) {
+      } catch (error) {
         if (!context.mounted) return false;
+
+        messenger.showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red,
+            content: Text(error.toString()),
+          ),
+        );
 
         return false;
       }

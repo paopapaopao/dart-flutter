@@ -4,7 +4,11 @@ import 'package:dart_flutter/models/models.dart';
 
 class PostForm extends StatefulWidget {
   final PostModel? post;
-  final Future<void> Function(int, Map<String, String>) onPress;
+  final Future<void> Function({
+    required int id,
+    required Map<String, String> payload,
+  })
+  onPress;
   final String text;
 
   const PostForm({
@@ -32,9 +36,18 @@ class _PostFormState extends State<PostForm> {
   Future<void> _handlePress() async {
     if (!_key.currentState!.validate()) return;
 
+    final messenger = ScaffoldMessenger.of(context);
     final data = {'title': _titleController.text, 'body': _bodyController.text};
 
-    await widget.onPress(widget.post?.id ?? 0, data);
+    try {
+      await widget.onPress(id: widget.post?.id ?? 0, payload: data);
+    } catch (error) {
+      if (!context.mounted) return;
+
+      messenger.showSnackBar(
+        SnackBar(backgroundColor: Colors.red, content: Text(error.toString())),
+      );
+    }
   }
 
   @override
