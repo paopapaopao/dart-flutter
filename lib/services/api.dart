@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:http/http.dart' as http;
 
+import 'package:dart_flutter/exceptions/exceptions.dart';
 import 'package:dart_flutter/models/models.dart';
 
 class ApiService {
@@ -10,72 +11,213 @@ class ApiService {
       'https://node-ts-fastify-production.up.railway.app';
 
   Future<PostModel> readPost(int id) async {
-    final response = await http.get(Uri.parse('$_baseUrl/posts/$id'));
+    try {
+      final uri = Uri.parse('$_baseUrl/posts/$id');
+      final response = await http.get(uri);
+      final Map<String, dynamic> data = jsonDecode(response.body);
 
-    if (response.statusCode != 200) {
-      throw Exception('Failed to load post');
-    }
+      if (response.statusCode >= 200 &&
+          response.statusCode < 300 &&
+          data['success'] == true) {
+        final post = PostModel.fromJson(data['data']);
 
-    final Map<String, dynamic> data = jsonDecode(response.body);
-    if (data['success'] == true) {
-      // The API returns a wrapper with a 'data' field containing the post
-      return PostModel.fromJson(data['data']);
+        return post;
+      }
+
+      throw ApiException(data['message'] ?? 'Read Post failed');
+    } on ApiException catch (error, stackTrace) {
+      log(
+        'ApiException',
+        name: 'ApiService',
+        error: error,
+        stackTrace: stackTrace,
+        time: DateTime.now(),
+      );
+
+      rethrow;
+    } catch (error, stackTrace) {
+      log(
+        'Exception',
+        name: 'ApiService',
+        error: error,
+        stackTrace: stackTrace,
+        time: DateTime.now(),
+      );
+
+      throw ApiException('Unexpected error');
     }
-    throw Exception('API error: ${data['message']}');
   }
 
   Future<List<PostModel>> readPosts({
     required int limit,
     required int skip,
   }) async {
-    final response = await http.get(
-      Uri.parse('$_baseUrl/posts?limit=$limit&skip=$skip'),
-    );
+    try {
+      final uri = Uri.parse('$_baseUrl/posts?limit=$limit&skip=$skip');
+      final response = await http.get(uri);
+      final Map<String, dynamic> data = jsonDecode(response.body);
 
-    if (response.statusCode != 200) {
-      throw Exception('Failed to load posts');
-    }
+      if (response.statusCode >= 200 &&
+          response.statusCode < 300 &&
+          data['success'] == true) {
+        // TODO: Why not List<Map<String, dynamic>>?
+        final posts = (data['data'] as List<dynamic>)
+            .map((post) => PostModel.fromJson(post))
+            .toList();
 
-    final Map<String, dynamic> data = jsonDecode(response.body);
-    if (data['success'] == true) {
-      final List<dynamic> posts = data['data'];
-      return posts.map((e) => PostModel.fromJson(e)).toList();
+        return posts;
+      }
+
+      throw ApiException(data['message'] ?? 'Read Posts failed');
+    } on ApiException catch (error, stackTrace) {
+      log(
+        'ApiException',
+        name: 'ApiService',
+        error: error,
+        stackTrace: stackTrace,
+        time: DateTime.now(),
+      );
+
+      rethrow;
+    } catch (error, stackTrace) {
+      log(
+        'Exception',
+        name: 'ApiService',
+        error: error,
+        stackTrace: stackTrace,
+        time: DateTime.now(),
+      );
+
+      throw ApiException('Unexpected error');
     }
-    throw Exception('API error: ${data['message']}');
   }
 
-  Future<void> createPost(Map<String, String> payload) async {
-    final response = await http.post(
-      Uri.parse('$_baseUrl/posts'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(payload),
-    );
+  Future<PostModel> createPost(Map<String, String> payload) async {
+    try {
+      final uri = Uri.parse('$_baseUrl/posts');
 
-    if (response.statusCode != 201 && response.statusCode != 200) {
-      throw Exception('Failed to create post: ${response.statusCode}');
+      final response = await http.post(
+        uri,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(payload),
+      );
+
+      final Map<String, dynamic> data = jsonDecode(response.body);
+
+      if (response.statusCode >= 200 &&
+          response.statusCode < 300 &&
+          data['success'] == true) {
+        final post = PostModel.fromJson(data['data']);
+
+        return post;
+      }
+
+      throw ApiException(data['message'] ?? 'Create Post failed');
+    } on ApiException catch (error, stackTrace) {
+      log(
+        'ApiException',
+        name: 'ApiService',
+        error: error,
+        stackTrace: stackTrace,
+        time: DateTime.now(),
+      );
+
+      rethrow;
+    } catch (error, stackTrace) {
+      log(
+        'Exception',
+        name: 'ApiService',
+        error: error,
+        stackTrace: stackTrace,
+        time: DateTime.now(),
+      );
+
+      throw ApiException('Unexpected error');
     }
   }
 
-  Future<void> updatePost(int id, Map<String, String> payload) async {
-    final response = await http.put(
-      Uri.parse('$_baseUrl/posts/$id'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(payload),
-    );
+  Future<PostModel> updatePost({
+    required int id,
+    required Map<String, String> payload,
+  }) async {
+    try {
+      final uri = Uri.parse('$_baseUrl/posts/$id');
 
-    if (response.statusCode != 200 && response.statusCode != 201) {
-      throw Exception('Failed to update post: ${response.statusCode}');
+      final response = await http.put(
+        uri,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(payload),
+      );
+
+      final Map<String, dynamic> data = jsonDecode(response.body);
+
+      if (response.statusCode >= 200 &&
+          response.statusCode < 300 &&
+          data['success'] == true) {
+        final post = PostModel.fromJson(data['data']);
+
+        return post;
+      }
+
+      throw ApiException(data['message'] ?? 'Update Post failed');
+    } on ApiException catch (error, stackTrace) {
+      log(
+        'ApiException',
+        name: 'ApiService',
+        error: error,
+        stackTrace: stackTrace,
+        time: DateTime.now(),
+      );
+
+      rethrow;
+    } catch (error, stackTrace) {
+      log(
+        'Exception',
+        name: 'ApiService',
+        error: error,
+        stackTrace: stackTrace,
+        time: DateTime.now(),
+      );
+
+      throw ApiException('Unexpected error');
     }
   }
 
-  Future<void> deletePost(int id) async {
-    final response = await http.delete(Uri.parse('$_baseUrl/posts/$id'));
+  Future<PostModel> deletePost(int id) async {
+    try {
+      final uri = Uri.parse('$_baseUrl/posts/$id');
+      final response = await http.delete(uri);
+      final Map<String, dynamic> data = jsonDecode(response.body);
 
-    log('response statusCode: ${response.statusCode}');
-    log('response body: ${response.body}');
+      if (response.statusCode >= 200 &&
+          response.statusCode < 300 &&
+          data['success'] == true) {
+        final post = PostModel.fromJson(data['data']);
 
-    if (response.statusCode != 200 && response.statusCode != 201) {
-      throw Exception('Failed to delete post: ${response.statusCode}');
+        return post;
+      }
+
+      throw ApiException(data['message'] ?? 'Delete Post failed');
+    } on ApiException catch (error, stackTrace) {
+      log(
+        'ApiException',
+        name: 'ApiService',
+        error: error,
+        stackTrace: stackTrace,
+        time: DateTime.now(),
+      );
+
+      rethrow;
+    } catch (error, stackTrace) {
+      log(
+        'Exception',
+        name: 'ApiService',
+        error: error,
+        stackTrace: stackTrace,
+        time: DateTime.now(),
+      );
+
+      throw ApiException('Unexpected error');
     }
   }
 }
