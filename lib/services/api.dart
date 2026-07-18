@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:dart_flutter/exceptions/exceptions.dart';
 import 'package:dart_flutter/models/models.dart';
 
-enum HttpMethod { get, post, put, delete }
+enum HttpMethod { post, get, put, delete }
 
 class ApiService {
   static const String _baseUrl =
@@ -15,20 +15,20 @@ class ApiService {
   Future<http.Response> _request({
     required HttpMethod method,
     required Uri uri,
-    String? body,
     Map<String, String>? headers,
+    String? body,
     String? message,
   }) async {
     try {
       final http.Response response;
 
       switch (method) {
-        case HttpMethod.get:
-          response = await http.get(uri);
-
-          break;
         case HttpMethod.post:
           response = await http.post(uri, headers: headers, body: body);
+
+          break;
+        case HttpMethod.get:
+          response = await http.get(uri);
 
           break;
         case HttpMethod.put:
@@ -49,7 +49,12 @@ class ApiService {
         return response;
       }
 
-      throw ApiException(data['message'] ?? message);
+      final errorMessage =
+          data['message'] ??
+          message ??
+          'Something went wrong: ${method.name} $uri';
+
+      throw ApiException(errorMessage);
     } on ApiException catch (error, stackTrace) {
       log(
         'ApiException',
@@ -73,6 +78,21 @@ class ApiService {
     }
   }
 
+  Future<PostModel> createPost(Map<String, String> payload) async {
+    final response = await _request(
+      method: HttpMethod.post,
+      uri: Uri.parse('$_baseUrl/posts'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(payload),
+      message: 'Create Post failed',
+    );
+
+    final Map<String, dynamic> data = jsonDecode(response.body);
+    final post = PostModel.fromJson(data['data']);
+
+    return post;
+  }
+
   Future<PostModel> readPost(int id) async {
     final response = await _request(
       method: HttpMethod.get,
@@ -86,6 +106,7 @@ class ApiService {
     return post;
   }
 
+  // TODO:?
   Future<List<PostModel>> readPosts({
     required int limit,
     required int skip,
@@ -106,21 +127,6 @@ class ApiService {
     return posts;
   }
 
-  Future<PostModel> createPost(Map<String, String> payload) async {
-    final response = await _request(
-      method: HttpMethod.post,
-      uri: Uri.parse('$_baseUrl/posts'),
-      message: 'Create Post failed',
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(payload),
-    );
-
-    final Map<String, dynamic> data = jsonDecode(response.body);
-    final post = PostModel.fromJson(data['data']);
-
-    return post;
-  }
-
   Future<PostModel> updatePost({
     required int id,
     required Map<String, String> payload,
@@ -128,9 +134,9 @@ class ApiService {
     final response = await _request(
       method: HttpMethod.put,
       uri: Uri.parse('$_baseUrl/posts/$id'),
-      message: 'Update Post failed',
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(payload),
+      message: 'Update Post failed',
     );
 
     final Map<String, dynamic> data = jsonDecode(response.body);

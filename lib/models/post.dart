@@ -6,7 +6,6 @@ class PostModel {
   const PostModel({required this.id, required this.title, required this.body});
 
   // TODO: Why factory?
-  factory PostModel.fromJson(Map<String, dynamic> json) {
-    return PostModel(id: json['id'], title: json['title'], body: json['body']);
-  }
+  factory PostModel.fromJson(Map<String, dynamic> json) =>
+      PostModel(id: json['id'], title: json['title'], body: json['body']);
 }
