@@ -43,7 +43,7 @@ class PostList extends StatelessWidget {
           );
         }
 
-        return PostTile(post: posts[index]);
+        return PostCard(post: posts[index]);
       },
     );
   }

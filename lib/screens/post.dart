@@ -59,10 +59,10 @@ class _PostScreenState extends State<PostScreen> {
             direction: Axis.vertical,
             children: [
               if (_isView) ...[
-                PostTile(post: snapshot.data!),
-                ElevatedButton(
-                  onPressed: _handleEditPress,
-                  child: Text('Edit'),
+                PostCard(
+                  post: snapshot.data!,
+                  isClickable: false,
+                  onPress: _handleEditPress,
                 ),
               ] else
                 PostForm(
