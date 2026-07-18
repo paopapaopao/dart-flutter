@@ -11,7 +11,7 @@ class PostFormScreen extends StatefulWidget {
 }
 
 class _PostFormScreenState extends State<PostFormScreen> {
-  final service = ApiService();
+  final ApiService service = ApiService();
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +25,32 @@ class _PostFormScreenState extends State<PostFormScreen> {
         padding: EdgeInsets.all(8),
         child: PostForm(
           post: null,
-          onPress: service.updatePost,
+          onPress: ({int? id, required payload}) async {
+            final messenger = ScaffoldMessenger.of(context);
+            final navigator = Navigator.of(context);
+
+            try {
+              await service.createPost(payload);
+
+              messenger.showSnackBar(
+                SnackBar(
+                  backgroundColor: Colors.green,
+                  content: Text('Post created'),
+                ),
+              );
+
+              navigator.pop();
+            } catch (error) {
+              if (!context.mounted) return;
+
+              messenger.showSnackBar(
+                SnackBar(
+                  backgroundColor: Colors.red,
+                  content: Text(error.toString()),
+                ),
+              );
+            }
+          },
           text: 'Create Post',
         ),
       ),

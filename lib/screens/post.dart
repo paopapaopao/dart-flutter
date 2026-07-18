@@ -14,6 +14,7 @@ class PostScreen extends StatefulWidget {
 }
 
 class _PostScreenState extends State<PostScreen> {
+  final ApiService _api = ApiService();
   bool _isView = true;
 
   void _handleEditPress() {
@@ -24,8 +25,6 @@ class _PostScreenState extends State<PostScreen> {
 
   @override
   Widget build(_) {
-    final api = ApiService();
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.deepPurple,
@@ -33,7 +32,7 @@ class _PostScreenState extends State<PostScreen> {
         title: Text('Post ${widget.id}'),
       ),
       body: FutureBuilder<PostModel>(
-        future: api.readPost(widget.id),
+        future: _api.readPost(widget.id),
         builder: (_, AsyncSnapshot snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Container(
@@ -68,7 +67,33 @@ class _PostScreenState extends State<PostScreen> {
               ] else
                 PostForm(
                   post: snapshot.data!,
-                  onPress: api.updatePost,
+                  onPress: ({int? id, required payload}) async {
+                    final messenger = ScaffoldMessenger.of(context);
+
+                    try {
+                      await _api.updatePost(id: id!, payload: payload);
+
+                      messenger.showSnackBar(
+                        SnackBar(
+                          backgroundColor: Colors.green,
+                          content: Text('Post updated'),
+                        ),
+                      );
+
+                      setState(() {
+                        _isView = true;
+                      });
+                    } catch (error) {
+                      if (!context.mounted) return;
+
+                      messenger.showSnackBar(
+                        SnackBar(
+                          backgroundColor: Colors.red,
+                          content: Text(error.toString()),
+                        ),
+                      );
+                    }
+                  },
                   text: 'Update Post',
                 ),
             ],

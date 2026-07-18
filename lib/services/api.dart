@@ -3,79 +3,158 @@ import 'dart:developer';
 
 import 'package:http/http.dart' as http;
 
+import 'package:dart_flutter/exceptions/exceptions.dart';
 import 'package:dart_flutter/models/models.dart';
+
+enum HttpMethod { post, get, put, delete }
 
 class ApiService {
   static const String _baseUrl =
       'https://node-ts-fastify-production.up.railway.app';
 
-  Future<PostModel> readPost(int id) async {
-    final response = await http.get(Uri.parse('$_baseUrl/posts/$id'));
+  Future<http.Response> _request({
+    required HttpMethod method,
+    required Uri uri,
+    Map<String, String>? headers,
+    String? body,
+    String? message,
+  }) async {
+    try {
+      final http.Response response;
 
-    if (response.statusCode != 200) {
-      throw Exception('Failed to load post');
-    }
+      switch (method) {
+        case HttpMethod.post:
+          response = await http.post(uri, headers: headers, body: body);
 
-    final Map<String, dynamic> data = jsonDecode(response.body);
-    if (data['success'] == true) {
-      // The API returns a wrapper with a 'data' field containing the post
-      return PostModel.fromJson(data['data']);
+          break;
+        case HttpMethod.get:
+          response = await http.get(uri);
+
+          break;
+        case HttpMethod.put:
+          response = await http.put(uri, headers: headers, body: body);
+
+          break;
+        case HttpMethod.delete:
+          response = await http.delete(uri);
+
+          break;
+      }
+
+      final Map<String, dynamic> data = jsonDecode(response.body);
+
+      if (response.statusCode >= 200 &&
+          response.statusCode < 300 &&
+          data['success'] == true) {
+        return response;
+      }
+
+      final errorMessage =
+          data['message'] ??
+          message ??
+          'Something went wrong: ${method.name} $uri';
+
+      throw ApiException(errorMessage);
+    } on ApiException catch (error, stackTrace) {
+      log(
+        'ApiException',
+        name: 'ApiService',
+        error: error,
+        stackTrace: stackTrace,
+        time: DateTime.now(),
+      );
+
+      rethrow;
+    } catch (error, stackTrace) {
+      log(
+        'Exception',
+        name: 'ApiService',
+        error: error,
+        stackTrace: stackTrace,
+        time: DateTime.now(),
+      );
+
+      throw ApiException('Unexpected error');
     }
-    throw Exception('API error: ${data['message']}');
   }
 
+  Future<PostModel> createPost(Map<String, String> payload) async {
+    final response = await _request(
+      method: HttpMethod.post,
+      uri: Uri.parse('$_baseUrl/posts'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(payload),
+      message: 'Create Post failed',
+    );
+
+    final Map<String, dynamic> data = jsonDecode(response.body);
+    final post = PostModel.fromJson(data['data']);
+
+    return post;
+  }
+
+  Future<PostModel> readPost(int id) async {
+    final response = await _request(
+      method: HttpMethod.get,
+      uri: Uri.parse('$_baseUrl/posts/$id'),
+      message: 'Read Post failed',
+    );
+
+    final Map<String, dynamic> data = jsonDecode(response.body);
+    final post = PostModel.fromJson(data['data']);
+
+    return post;
+  }
+
+  // TODO:?
   Future<List<PostModel>> readPosts({
     required int limit,
     required int skip,
   }) async {
-    final response = await http.get(
-      Uri.parse('$_baseUrl/posts?limit=$limit&skip=$skip'),
+    final response = await _request(
+      method: HttpMethod.get,
+      uri: Uri.parse('$_baseUrl/posts?limit=$limit&skip=$skip'),
+      message: 'Read Posts failed',
     );
-
-    if (response.statusCode != 200) {
-      throw Exception('Failed to load posts');
-    }
 
     final Map<String, dynamic> data = jsonDecode(response.body);
-    if (data['success'] == true) {
-      final List<dynamic> posts = data['data'];
-      return posts.map((e) => PostModel.fromJson(e)).toList();
-    }
-    throw Exception('API error: ${data['message']}');
+
+    // TODO: Why not List<Map<String, dynamic>>?
+    final posts = (data['data'] as List<dynamic>)
+        .map((dynamic post) => PostModel.fromJson(post))
+        .toList();
+
+    return posts;
   }
 
-  Future<void> createPost(Map<String, String> payload) async {
-    final response = await http.post(
-      Uri.parse('$_baseUrl/posts'),
+  Future<PostModel> updatePost({
+    required int id,
+    required Map<String, String> payload,
+  }) async {
+    final response = await _request(
+      method: HttpMethod.put,
+      uri: Uri.parse('$_baseUrl/posts/$id'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(payload),
+      message: 'Update Post failed',
     );
 
-    if (response.statusCode != 201 && response.statusCode != 200) {
-      throw Exception('Failed to create post: ${response.statusCode}');
-    }
+    final Map<String, dynamic> data = jsonDecode(response.body);
+    final post = PostModel.fromJson(data['data']);
+
+    return post;
   }
 
-  Future<void> updatePost(int id, Map<String, String> payload) async {
-    final response = await http.put(
-      Uri.parse('$_baseUrl/posts/$id'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(payload),
+  Future<PostModel> deletePost(int id) async {
+    final response = await _request(
+      method: HttpMethod.delete,
+      uri: Uri.parse('$_baseUrl/posts/$id'),
+      message: 'Delete Post failed',
     );
 
-    if (response.statusCode != 200 && response.statusCode != 201) {
-      throw Exception('Failed to update post: ${response.statusCode}');
-    }
-  }
+    final Map<String, dynamic> data = jsonDecode(response.body);
+    final post = PostModel.fromJson(data['data']);
 
-  Future<void> deletePost(int id) async {
-    final response = await http.delete(Uri.parse('$_baseUrl/posts/$id'));
-
-    log('response statusCode: ${response.statusCode}');
-    log('response body: ${response.body}');
-
-    if (response.statusCode != 200 && response.statusCode != 201) {
-      throw Exception('Failed to delete post: ${response.statusCode}');
-    }
+    return post;
   }
 }
